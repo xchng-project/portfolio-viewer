@@ -2,13 +2,11 @@
 FROM node:25-alpine AS builder
 
 # Установка pnpm
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN npm install -g pnpm
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml* ./
+COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
 COPY . .
@@ -21,9 +19,7 @@ FROM node:25-alpine
 ENV NODE_ENV=production
 
 # Установка pnpm в финальном образе (если планируется использовать pnpm start)
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN npm install -g pnpm
 
 WORKDIR /app
 
