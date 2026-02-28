@@ -5,12 +5,16 @@ import {Suspense} from 'react'
 import Borrows from './Borrows'
 
 export interface Asset {
+    address?: string
     apy?: string
     balance: string
+    market?: {
+        address: string
+        chainId: number
+    }
     name: string
     symbol: string
     valueInUsd: string
-    address?: string
 }
 
 const Assets = () => {

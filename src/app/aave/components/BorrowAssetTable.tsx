@@ -5,11 +5,11 @@ import RepayModal from './RepayModal'
 
 interface Props {
     walletAddress: string
-    markets: { chainId: ChainId, address: EvmAddress }[]
+    markets: {chainId: ChainId, address: EvmAddress}[]
 }
 
 const columns: {
-    key: keyof Asset
+    key: keyof Omit<Asset, 'market'>
     label: string
 }[] = [
     {key: 'name', label: 'Name'},
@@ -32,6 +32,10 @@ const BorrowAssetTable = ({markets, walletAddress}: Props) => {
         valueInUsd: item.debt.usd,
         apy: item.apy.formatted,
         address: item.currency.address,
+        market: {
+            address: item.market.address,
+            chainId: Number(item.market.chain.chainId)
+        }
     })) || []
     const repay = (index: number) => {
         const asset = assets[index]
@@ -65,18 +69,17 @@ const BorrowAssetTable = ({markets, walletAddress}: Props) => {
                     <tr key={index} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/30 transition-colors">
                         {columns.map((col) => (
                             <td key={col.key as string} className="px-4 py-3 whitespace-nowrap">
-                                {col.key === 'symbol' ? (
+                                {col.key === 'symbol' ?
                                     <div className="flex items-center gap-2">
-                                        <div>
-                                            <div
-                                                className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">{asset.symbol}</div>
+                                        <div className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                                            {asset.symbol}
                                         </div>
                                     </div>
-                                ) : (
+                                    :
                                     <div className="text-xs text-zinc-900 dark:text-zinc-100">
                                         {asset[col.key] || null}
                                     </div>
-                                )}
+                                }
                             </td>
                         ))}
                         <td key={'action'} className="px-4 py-3 whitespace-nowrap">

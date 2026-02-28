@@ -1,34 +1,37 @@
 'use client'
 
 import {useWeb3Auth} from '@xchng/web3-auth'
-import {parseUnits} from 'ethers'
 import {useEffect, useState} from 'react'
+import {bigDecimal, chainId as aaveChainId, evmAddress, useRepay} from '@aave/react'
+import {useSendTransaction} from '@aave/react/privy'
 import {fetchBalance} from '@/src/utils/balance'
 import {TokenBalance} from '@/src/utils/types'
+import {Asset} from './Assets'
 
 interface Props {
     isOpen: boolean
     onClose: () => void
-    asset: {
-        symbol: string
-        balance: string
-        name: string
-        address?: string
-    } | null
+    asset: Omit<Asset, 'apy'> | null
 }
 
 const RepayModal = ({asset, isOpen, onClose}: Props) => {
+    const [repay, repaying] = useRepay()
+    const [sendTransaction, sending] = useSendTransaction()
     const [amount, setAmount] = useState<string>('')
     const [isLoadingBalance, setIsLoadingBalance] = useState<boolean>(false)
     const [tokenBalance, setTokenBalance] = useState<TokenBalance | null>(null)
-    const {wallet, walletAddress} = useWeb3Auth()
+    const [txHash, setTxHash] = useState<string | null>(null)
+    const [txError, setTxError] = useState<string | null>(null)
+    const {chainId, wallet, walletAddress} = useWeb3Auth()
 
     useEffect(() => {
-        return () => {
+        if (!isOpen) {
             setAmount('')
             setTokenBalance(null)
+            setTxHash(null)
+            setTxError(null)
         }
-    }, [])
+    }, [isOpen])
     useEffect(() => {
         if (!isOpen || !asset || !walletAddress || !wallet) {
             return
@@ -45,12 +48,52 @@ const RepayModal = ({asset, isOpen, onClose}: Props) => {
         }
     }, [asset, isOpen, wallet, walletAddress])
 
-    if (!isOpen || !asset) return null
+    if (!isOpen || !asset || !wallet) return null
 
     const isExceedingBalance = tokenBalance && amount !== '' ? parseFloat(amount) > parseFloat(tokenBalance.formatted) : false
-    const confirmHandler = () => {
-        console.log(parseUnits(amount, tokenBalance?.decimals))
-        onClose()
+
+    const confirmHandler = async () => {
+        if (!asset || !asset.address || !asset.market || !chainId || !walletAddress) {
+            return
+        }
+
+        setTxError(null)
+        setTxHash(null)
+        const result = await repay({
+            market: evmAddress(asset.market.address),
+            chainId: aaveChainId(chainId),
+            amount: {
+                erc20: {
+                    value: {exact: bigDecimal(amount)},
+                    currency: evmAddress(asset.address),
+                },
+            },
+            sender: evmAddress(walletAddress),
+        }).andThen((plan) => {
+            switch (plan.__typename) {
+                case 'TransactionRequest':
+                    return sendTransaction(plan)
+                case 'ApprovalRequired':
+                    return sendTransaction(plan.approval)
+                        .andThen(() => sendTransaction(plan.originalTransaction))
+                case 'InsufficientBalanceError':
+                    throw new Error(`Insufficient balance: ${plan.required.value} required.`)
+                default:
+                    throw new Error('Unexpected execution plan')
+            }
+        })
+
+        if (result.isErr()) {
+            console.error('Repay error:', result.error)
+            setTxError(result.error instanceof Error ? result.error.message : 'Unknown error occurred')
+            return
+        }
+
+        setTxHash(result.value)
+        // Optionally close after some time or keep it to show success
+        setTimeout(() => {
+            onClose()
+        }, 3000)
     }
     const maxHandler = () => {
         if (!tokenBalance) {
@@ -116,9 +159,27 @@ const RepayModal = ({asset, isOpen, onClose}: Props) => {
                 </div>
                 <button
                     onClick={confirmHandler}
-                    disabled={!amount || parseFloat(amount) <= 0 || isExceedingBalance}
-                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/20"
-                >Confirm Repay</button>
+                    disabled={!amount || parseFloat(amount) <= 0 || isExceedingBalance || repaying.loading || sending.loading || !!txHash}
+                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/20 flex justify-center items-center gap-2"
+                >
+                    {(repaying.loading || sending.loading) && (
+                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    )}
+                    {txHash ? 'Repay Successful' : (repaying.loading || sending.loading ? 'Processing...' : 'Confirm Repay')}
+                </button>
+                {txHash && (
+                    <p className="text-center text-xs text-green-500 font-medium">
+                        Transaction sent: {txHash.slice(0, 10)}...{txHash.slice(-8)}
+                    </p>
+                )}
+                {txError && (
+                    <p className="text-center text-xs text-red-500 font-medium">
+                        Error: {txError}
+                    </p>
+                )}
             </div>
         </div>
     </div>
