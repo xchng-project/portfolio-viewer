@@ -10,6 +10,7 @@ export interface Asset {
     name: string
     symbol: string
     valueInUsd: string
+    address?: string
 }
 
 const Assets = () => {
