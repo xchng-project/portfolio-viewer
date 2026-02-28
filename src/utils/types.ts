@@ -1,5 +1,3 @@
-import {AUTH_TYPES, CHAINS} from '@/src/utils/constants'
-
-export type AuthType = typeof AUTH_TYPES[number]
+import {CHAINS} from '@/src/utils/constants'
 
 export type ChainId = keyof typeof CHAINS

@@ -1,4 +1,3 @@
-export const AUTH_TYPES = ['embedded', 'injected'] as const
 export const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID || ''
 export const PRIVY_CLIENT_ID = process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID || ''
 
@@ -82,12 +81,3 @@ export const CHAINS = {
         blockExplorerTxHash: (hash) => (`https://sepolia.etherscan.io/tx/${hash}`),
     },
 } satisfies Record<string, ChainType>
-
-interface AaveChainType {
-    assets: string[]
-}
-export const AAVE_CHAINS: {[key: number]: AaveChainType} = {
-    56: {
-        assets: ['0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c', '0x55d398326f99059ff775485246999027b3197955']
-    }
-}
