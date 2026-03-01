@@ -47,6 +47,17 @@ export const CHAINS = {
         blockExplorerNftLink: (contract, tokenId) => (`https://polygonscan.com/nft/${contract}/${tokenId}`),
         blockExplorerTxHash: (hash) => (`https://polygonscan.com/tx/${hash}`),
     },
+    8453: {
+        eipPrefix: 'ERC',
+        token: 'ETH',
+        tokenPrecision: 18,
+        label: 'Base',
+        name: 'base',
+        testnet: false,
+        blockExplorer: 'https://basescan.org',
+        blockExplorerNftLink: (contract, tokenId) => (`https://basescan.org/token/${contract}?a=${tokenId}`),
+        blockExplorerTxHash: (hash) => (`https://basescan.org/tx/${hash}`),
+    },
     42161: {
         eipPrefix: 'ERC',
         token: 'ETH',
