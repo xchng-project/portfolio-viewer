@@ -1,6 +1,7 @@
 import {ChainId, EvmAddress, evmAddress, useUserBorrows} from '@aave/react'
 import {useState} from 'react'
 import {Asset} from './Assets'
+import BorrowModal from './BorrowModal'
 import RepayModal from './RepayModal'
 
 interface Props {
@@ -17,7 +18,8 @@ const columns: {
 ]
 
 const BorrowAssetTable = ({markets, walletAddress}: Props) => {
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+    const [isRepayModalOpen, setIsRepayModalOpen] = useState<boolean>(false)
+    const [isBorrowModalOpen, setIsBorrowModalOpen] = useState<boolean>(false)
     const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null)
 
     const {data: borrows} = useUserBorrows({
@@ -44,7 +46,17 @@ const BorrowAssetTable = ({markets, walletAddress}: Props) => {
         }
 
         setSelectedAsset(asset)
-        setIsModalOpen(true)
+        setIsRepayModalOpen(true)
+    }
+
+    const borrow = (index: number) => {
+        const asset = assets[index]
+        if (!asset) {
+            return
+        }
+
+        setSelectedAsset(asset)
+        setIsBorrowModalOpen(true)
     }
 
     return <>
@@ -83,11 +95,15 @@ const BorrowAssetTable = ({markets, walletAddress}: Props) => {
                             </td>
                         ))}
                         <td key={'action'} className="px-4 py-3 whitespace-nowrap">
-                            <div className="text-xs text-zinc-900 dark:text-zinc-100">
+                            <div className="text-xs text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
                                 <button
                                     onClick={() => repay(index)}
                                     className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg font-medium transition-colors"
                                 >Repay</button>
+                                <button
+                                    onClick={() => borrow(index)}
+                                    className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg font-medium transition-colors"
+                                >Borrow</button>
                             </div>
                         </td>
                     </tr>
@@ -103,8 +119,13 @@ const BorrowAssetTable = ({markets, walletAddress}: Props) => {
             </tbody>
         </table>
         <RepayModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
+            isOpen={isRepayModalOpen}
+            onClose={() => setIsRepayModalOpen(false)}
+            asset={selectedAsset}
+        />
+        <BorrowModal
+            isOpen={isBorrowModalOpen}
+            onClose={() => setIsBorrowModalOpen(false)}
             asset={selectedAsset}
         />
     </>
