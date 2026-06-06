@@ -1,6 +1,8 @@
 import {Market} from '@aave/react'
 import {useState} from 'react'
 import {formatBalance} from '@/src/utils/functions'
+import {Asset} from './Assets'
+import BorrowModal from './BorrowModal'
 import SupplyModal from './SupplyModal'
 
 interface Props {
@@ -11,6 +13,8 @@ export interface SupplyOption {
     address: string
     apy: string
     balance: string
+    borrowApy: string
+    borrowable: boolean
     market: {
         address: string
         chainId: number
@@ -19,21 +23,25 @@ export interface SupplyOption {
     supplyCap: string
     symbol: string
     totalSupplied: string
+    valueInUsd: string
 }
 
 const columns: {
-    key: keyof Pick<SupplyOption, 'name' | 'balance' | 'apy' | 'totalSupplied' | 'supplyCap'>
+    key: keyof Pick<SupplyOption, 'name' | 'balance' | 'valueInUsd' | 'apy' | 'borrowApy' | 'totalSupplied' | 'supplyCap'>
     label: string
 }[] = [
     {key: 'name', label: 'Asset'},
     {key: 'balance', label: 'Wallet'},
+    {key: 'valueInUsd', label: 'Value'},
     {key: 'apy', label: 'Supply APY'},
+    {key: 'borrowApy', label: 'Borrow APY'},
     {key: 'totalSupplied', label: 'Total supplied'},
     {key: 'supplyCap', label: 'Supply cap'},
 ]
 
 const SupplyOptionsTable = ({markets}: Props) => {
     const [isSupplyModalOpen, setIsSupplyModalOpen] = useState<boolean>(false)
+    const [isBorrowModalOpen, setIsBorrowModalOpen] = useState<boolean>(false)
     const [selectedAsset, setSelectedAsset] = useState<SupplyOption | null>(null)
     const assets: SupplyOption[] = markets
         .flatMap((market) => market.supplyReserves)
@@ -42,6 +50,8 @@ const SupplyOptionsTable = ({markets}: Props) => {
             address: reserve.underlyingToken.address,
             apy: reserve.supplyInfo.apy.formatted,
             balance: reserve.userState?.suppliable.amount.value ?? '0',
+            borrowApy: reserve.borrowInfo?.apy.formatted ?? '-',
+            borrowable: reserve.borrowInfo?.borrowingState === 'ENABLED' && !reserve.borrowInfo.borrowCapReached && reserve.userState?.canBeBorrowed === true,
             market: {
                 address: reserve.market.address,
                 chainId: Number(reserve.market.chain.chainId)
@@ -50,7 +60,9 @@ const SupplyOptionsTable = ({markets}: Props) => {
             supplyCap: reserve.supplyInfo.supplyCap.amount.value,
             symbol: reserve.underlyingToken.symbol,
             totalSupplied: reserve.supplyInfo.total.value,
+            valueInUsd: reserve.userState?.suppliable.usd ?? '0',
         }))
+        .sort((a, b) => Number(b.valueInUsd) - Number(a.valueInUsd))
 
     const supply = (index: number) => {
         const asset = assets[index]
@@ -61,6 +73,26 @@ const SupplyOptionsTable = ({markets}: Props) => {
         setSelectedAsset(asset)
         setIsSupplyModalOpen(true)
     }
+
+    const borrow = (index: number) => {
+        const asset = assets[index]
+        if (!asset || !asset.borrowable) {
+            return
+        }
+
+        setSelectedAsset(asset)
+        setIsBorrowModalOpen(true)
+    }
+
+    const selectedBorrowAsset: Asset | null = selectedAsset ? {
+        address: selectedAsset.address,
+        apy: selectedAsset.borrowApy,
+        balance: '0',
+        market: selectedAsset.market,
+        name: selectedAsset.name,
+        symbol: selectedAsset.symbol,
+        valueInUsd: '0',
+    } : null
 
     return <>
         <table className="w-full text-left">
@@ -91,7 +123,7 @@ const SupplyOptionsTable = ({markets}: Props) => {
                                 </div>
                                 :
                                 <div className="text-xs text-zinc-900 dark:text-zinc-100">
-                                    {col.key === 'balance' || col.key === 'totalSupplied' || col.key === 'supplyCap' ?
+                                    {col.key === 'balance' || col.key === 'valueInUsd' || col.key === 'totalSupplied' || col.key === 'supplyCap' ?
                                         formatBalance(asset[col.key])
                                         :
                                         asset[col.key]
@@ -101,11 +133,16 @@ const SupplyOptionsTable = ({markets}: Props) => {
                         </td>
                     ))}
                     <td key={'action'} className="px-4 py-3 whitespace-nowrap">
-                        <div className="text-xs text-zinc-900 dark:text-zinc-100">
+                        <div className="text-xs text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
                             <button
                                 onClick={() => supply(index)}
                                 className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg font-medium transition-colors"
                             >Supply</button>
+                            <button
+                                onClick={() => borrow(index)}
+                                disabled={!asset.borrowable}
+                                className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
+                            >Borrow</button>
                         </div>
                     </td>
                 </tr>
@@ -124,6 +161,11 @@ const SupplyOptionsTable = ({markets}: Props) => {
             isOpen={isSupplyModalOpen}
             onClose={() => setIsSupplyModalOpen(false)}
             asset={selectedAsset}
+        />
+        <BorrowModal
+            isOpen={isBorrowModalOpen}
+            onClose={() => setIsBorrowModalOpen(false)}
+            asset={selectedBorrowAsset}
         />
     </>
 }

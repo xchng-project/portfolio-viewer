@@ -8,7 +8,7 @@ import {
     useBorrow,
     useUserMarketState
 } from '@aave/react'
-import {useSendTransaction} from '@aave/react/privy'
+import {useSendTransaction} from '@aave/react/ethers'
 import {useWeb3Auth} from '@xchng/web3-auth'
 import {useEffect, useState} from 'react'
 import {fetchBalance} from '@/src/utils/balance'
@@ -25,14 +25,14 @@ interface Props {
 const BorrowModal = ({asset, isOpen, onClose}: Props) => {
     const [borrow, borrowing] = useBorrow()
     const [previewHealthFactor, previewingHealthFactor] = useAaveHealthFactorPreview()
-    const [sendTransaction, sending] = useSendTransaction()
     const [amount, setAmount] = useState<string>('')
     const [isLoadingBalance, setIsLoadingBalance] = useState<boolean>(false)
     const [tokenBalance, setTokenBalance] = useState<TokenBalance | null>(null)
     const [txHash, setTxHash] = useState<string | null>(null)
     const [txError, setTxError] = useState<string | null>(null)
     const [futureHealthRate, setFutureHealthRate] = useState<string | null>(null)
-    const {chainId, wallet, walletAddress} = useWeb3Auth()
+    const {signer, wallet, walletAddress} = useWeb3Auth()
+    const [sendTransaction, sending] = useSendTransaction(signer!)
     const activeMarketAddress = asset?.market?.address
     const activeMarketChainId = asset?.market?.chainId
     const {data: marketState} = useUserMarketState({
@@ -52,7 +52,7 @@ const BorrowModal = ({asset, isOpen, onClose}: Props) => {
     }, [isOpen])
 
     useEffect(() => {
-        if (!isOpen || !asset || !asset.market || !asset.address || !walletAddress || !chainId || !amount || parseFloat(amount) <= 0) {
+        if (!isOpen || !asset || !asset.market || !asset.address || !walletAddress || !amount || parseFloat(amount) <= 0) {
             setFutureHealthRate(null)
             return
         }
@@ -61,7 +61,7 @@ const BorrowModal = ({asset, isOpen, onClose}: Props) => {
             action: {
                 borrow: {
                     market: evmAddress(asset.market.address),
-                    chainId: aaveChainId(chainId),
+                    chainId: aaveChainId(asset.market.chainId),
                     amount: {
                         erc20: {
                             value: bigDecimal(amount),
@@ -80,7 +80,7 @@ const BorrowModal = ({asset, isOpen, onClose}: Props) => {
 
                 setFutureHealthRate(result.value.after ?? null)
             })
-    }, [amount, asset, chainId, isOpen, previewHealthFactor, walletAddress])
+    }, [amount, asset, isOpen, previewHealthFactor, walletAddress])
 
     useEffect(() => {
         if (!isOpen || !asset || !walletAddress || !wallet) {
@@ -99,10 +99,10 @@ const BorrowModal = ({asset, isOpen, onClose}: Props) => {
             })
     }, [asset, isOpen, wallet, walletAddress])
 
-    if (!isOpen || !asset || !wallet) return null
+    if (!isOpen || !asset || !wallet || !signer) return null
 
     const confirmHandler = async () => {
-        if (!asset || !asset.address || !asset.market || !chainId || !walletAddress) {
+        if (!asset || !asset.address || !asset.market || !walletAddress) {
             return
         }
 
@@ -110,7 +110,7 @@ const BorrowModal = ({asset, isOpen, onClose}: Props) => {
         setTxHash(null)
         const result = await borrow({
             market: evmAddress(asset.market.address),
-            chainId: aaveChainId(chainId),
+            chainId: aaveChainId(asset.market.chainId),
             amount: {
                 erc20: {
                     value: bigDecimal(amount),
