@@ -1,6 +1,8 @@
 import {ChainId, EvmAddress, evmAddress, useUserSupplies} from '@aave/react'
+import {useState} from 'react'
 import {formatBalance} from '@/src/utils/functions'
 import {Asset} from './Assets'
+import WithdrawModal from './WithdrawModal'
 
 interface Props {
     walletAddress: string
@@ -23,6 +25,8 @@ const columns: {
 ]
 
 const SupplyAssetTable = ({markets, walletAddress}: Props) => {
+    const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState<boolean>(false)
+    const [selectedAsset, setSelectedAsset] = useState<SupplyAsset | null>(null)
     const {data: supplies} = useUserSupplies({
         markets,
         suspense: true,
@@ -43,7 +47,18 @@ const SupplyAssetTable = ({markets, walletAddress}: Props) => {
         }
     })) || []
 
-    return <table className="w-full text-left">
+    const withdraw = (index: number) => {
+        const asset = assets[index]
+        if (!asset) {
+            return
+        }
+
+        setSelectedAsset(asset)
+        setIsWithdrawModalOpen(true)
+    }
+
+    return <>
+        <table className="w-full text-left">
         <thead>
         <tr className="bg-zinc-50 dark:bg-zinc-900/50">
             {columns.map((col) => (
@@ -52,6 +67,10 @@ const SupplyAssetTable = ({markets, walletAddress}: Props) => {
                     className="px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400"
                 >{col.label}</th>
             ))}
+            <th
+                key={'action'}
+                className="px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400"
+            >Action</th>
         </tr>
         </thead>
         <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -61,16 +80,28 @@ const SupplyAssetTable = ({markets, walletAddress}: Props) => {
                     {columns.map((col) => (
                         <td key={col.key as string} className="px-4 py-3 whitespace-nowrap">
                             <div className="text-xs text-zinc-900 dark:text-zinc-100">
-                                {col.key === 'balance' || col.key === 'valueInUsd' ? formatBalance(asset.balance) : asset[col.key] || null}
+                                {col.key === 'balance' ?
+                                    formatBalance(asset.balance)
+                                    :
+                                    col.key === 'valueInUsd' ? formatBalance(asset.valueInUsd) : asset[col.key] || null
+                                }
                             </div>
                         </td>
                     ))}
+                    <td key={'action'} className="px-4 py-3 whitespace-nowrap">
+                        <div className="text-xs text-zinc-900 dark:text-zinc-100">
+                            <button
+                                onClick={() => withdraw(index)}
+                                className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg font-medium transition-colors"
+                            >Withdraw</button>
+                        </div>
+                    </td>
                 </tr>
             ))
             :
             <tr>
                 <td
-                    colSpan={columns.length}
+                    colSpan={columns.length + 1}
                     className="px-4 py-6 text-center text-xs text-zinc-500 dark:text-zinc-400"
                 >No assets found
                 </td>
@@ -78,6 +109,12 @@ const SupplyAssetTable = ({markets, walletAddress}: Props) => {
         }
         </tbody>
     </table>
+        <WithdrawModal
+            isOpen={isWithdrawModalOpen}
+            onClose={() => setIsWithdrawModalOpen(false)}
+            asset={selectedAsset}
+        />
+    </>
 }
 
 export default SupplyAssetTable
