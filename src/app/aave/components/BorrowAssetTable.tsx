@@ -1,5 +1,6 @@
 import {ChainId, EvmAddress, evmAddress, useUserBorrows} from '@aave/react'
 import {useState} from 'react'
+import {formatBalance} from '@/src/utils/functions'
 import {Asset} from './Assets'
 import BorrowModal from './BorrowModal'
 import RepayModal from './RepayModal'
@@ -89,7 +90,7 @@ const BorrowAssetTable = ({markets, walletAddress}: Props) => {
                                     </div>
                                     :
                                     <div className="text-xs text-zinc-900 dark:text-zinc-100">
-                                        {asset[col.key] || null}
+                                        {col.key === 'balance' ? formatBalance(asset.balance) : asset[col.key] || null}
                                     </div>
                                 }
                             </td>
@@ -111,7 +112,7 @@ const BorrowAssetTable = ({markets, walletAddress}: Props) => {
                 :
                 <tr>
                     <td
-                        colSpan={columns.length}
+                        colSpan={columns.length + 1}
                         className="px-4 py-6 text-center text-xs text-zinc-500 dark:text-zinc-400"
                     >No assets found</td>
                 </tr>

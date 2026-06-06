@@ -5,6 +5,7 @@ import {useEffect, useState} from 'react'
 import {bigDecimal, chainId as aaveChainId, evmAddress, useRepay} from '@aave/react'
 import {useSendTransaction} from '@aave/react/privy'
 import {fetchBalance} from '@/src/utils/balance'
+import {formatBalance} from '@/src/utils/functions'
 import {TokenBalance} from '@/src/utils/types'
 import {Asset} from './Assets'
 
@@ -127,13 +128,13 @@ const RepayModal = ({asset, isOpen, onClose}: Props) => {
                         <div className="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800">
                             <span className="block text-[10px] font-bold uppercase text-zinc-500 mb-1">Your Debt</span>
                             <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                                {parseFloat(asset.balance).toFixed(4)} {asset.symbol}
+                                {formatBalance(asset.balance)} {asset.symbol}
                             </span>
                         </div>
                         <div className="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800">
                             <span className="block text-[10px] font-bold uppercase text-zinc-500 mb-1">Wallet Balance</span>
                             <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                                {isLoadingBalance ? '...' : (tokenBalance ? `${tokenBalance.formatted} ${asset.symbol}` : '0.00')}
+                                {isLoadingBalance ? '...' : (tokenBalance ? `${formatBalance(tokenBalance.formatted)} ${asset.symbol}` : '0')}
                             </span>
                         </div>
                     </div>
