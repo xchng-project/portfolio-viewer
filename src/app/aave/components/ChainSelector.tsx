@@ -2,12 +2,13 @@
 
 import {ChainsFilter, useAaveChains} from '@aave/react'
 import {useWeb3Auth} from '@xchng/web3-auth'
-import {useCallback, useEffect} from 'react'
+import {useCallback, useEffect, useMemo} from 'react'
 import {CHAINS} from '@/src/utils/constants'
 import {ChainId} from '@/src/utils/types'
 
 const ChainSelector = () => {
     const {chainId, setChain} = useWeb3Auth()
+    const defaultChain = useMemo(() => Number(Object.keys(CHAINS)[0]) as ChainId, [])
     const {data: chains} = useAaveChains({
         filter: ChainsFilter.MAINNET_ONLY,
         suspense: true,
@@ -15,40 +16,51 @@ const ChainSelector = () => {
 
     useEffect(() => {
         if (!chainId) {
-            setChain(Number(Object.keys(CHAINS)[0]) as ChainId)
+            setChain(defaultChain)
         }
-    }, [])
+    }, [chainId, defaultChain, setChain])
 
     const setNetwork = useCallback((chain: ChainId) => {
         if (CHAINS[chain]) {
             setChain(chain)
         } else {
-            setChain(Number(Object.keys(CHAINS)[0]) as ChainId)
+            setChain(defaultChain)
         }
-    }, [])
+    }, [defaultChain, setChain])
 
-    return <div className="flex flex-wrap gap-2 mb-8">
-        {chains ?
-            chains.map(item => {
-                const chain: ChainId = Number(item.chainId) as ChainId
-                if (!CHAINS[chain]) {
-                    return null
-                }
+    return <div className="mb-6 rounded-xl border bg-surface p-3">
+        <div className="mb-3 flex items-center justify-between gap-3 px-1">
+            <div>
+                <h2 className="text-sm font-semibold text-foreground">Network</h2>
+                <p className="mt-1 text-xs text-muted">Only supported Aave mainnets are shown.</p>
+            </div>
+            <span className="hidden rounded-md bg-surface-subtle px-2.5 py-1 text-xs font-medium text-muted-strong sm:inline">
+                {chainId && CHAINS[chainId] ? CHAINS[chainId].label : 'Selecting'}
+            </span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+            {chains ?
+                chains.map(item => {
+                    const chain: ChainId = Number(item.chainId) as ChainId
+                    if (!CHAINS[chain]) {
+                        return null
+                    }
 
-                return <button
-                    key={chain}
-                    onClick={() => setNetwork(chain)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        chainId === chain ?
-                            'bg-blue-600 text-white'
-                            :
-                            'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700'
-                    }`}
-                >{CHAINS[chain].label}</button>
-            })
-            :
-            'Loading...'
-        }
+                    return <button
+                        key={chain}
+                        onClick={() => setNetwork(chain)}
+                        className={`ui-button ui-button-standard ${
+                            chainId === chain ?
+                                'ui-button-selected'
+                                :
+                                ''
+                        }`}
+                    >{CHAINS[chain].label}</button>
+                })
+                :
+                <span className="rounded-lg bg-surface-subtle px-3.5 py-2 text-sm text-muted">Loading networks...</span>
+            }
+        </div>
     </div>
 }
 

@@ -52,43 +52,43 @@ const BorrowAssetTable = ({markets, walletAddress}: Props) => {
     return <>
         <table className="w-full text-left">
             <thead>
-            <tr className="bg-zinc-50 dark:bg-zinc-900/50">
+            <tr className="bg-surface-subtle">
                 {columns.map((col) => (
                     <th
                         key={col.key as string}
-                        className="px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400"
+                        className="px-4 py-2.5 text-xs font-semibold text-muted"
                     >{col.label}</th>
                 ))}
                 <th
                     key={'action'}
-                    className="px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400"
+                    className="px-4 py-2.5 text-xs font-semibold text-muted"
                 >Action</th>
             </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+            <tbody className="divide-y">
             {assets.length > 0 ?
                 assets.map((asset, index) => (
-                    <tr key={index} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/30 transition-colors">
+                    <tr key={index} className="hover:bg-surface-subtle">
                         {columns.map((col) => (
-                            <td key={col.key as string} className="px-4 py-3 whitespace-nowrap">
+                            <td key={col.key as string} className="whitespace-nowrap px-4 py-3">
                                 {col.key === 'symbol' ?
                                     <div className="flex items-center gap-2">
-                                        <div className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                                        <div className="text-sm font-semibold text-foreground">
                                             {asset.symbol}
                                         </div>
                                     </div>
                                     :
-                                    <div className="text-xs text-zinc-900 dark:text-zinc-100">
+                                    <div className={col.key === 'name' ? 'text-sm font-semibold text-foreground' : 'font-mono text-xs text-muted-strong'}>
                                         {col.key === 'balance' ? formatBalance(asset.balance) : asset[col.key] || null}
                                     </div>
                                 }
                             </td>
                         ))}
-                        <td key={'action'} className="px-4 py-3 whitespace-nowrap">
-                            <div className="text-xs text-zinc-900 dark:text-zinc-100">
+                        <td key={'action'} className="whitespace-nowrap px-4 py-3">
+                            <div className="text-xs text-muted-strong">
                                 <button
                                     onClick={() => repay(index)}
-                                    className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg font-medium transition-colors"
+                                    className="ui-button ui-button-compact"
                                 >Repay</button>
                             </div>
                         </td>
@@ -98,8 +98,8 @@ const BorrowAssetTable = ({markets, walletAddress}: Props) => {
                 <tr>
                     <td
                         colSpan={columns.length + 1}
-                        className="px-4 py-6 text-center text-xs text-zinc-500 dark:text-zinc-400"
-                    >No assets found</td>
+                        className="px-4 py-8 text-center text-sm text-muted"
+                    >No borrow positions on this network.</td>
                 </tr>
             }
             </tbody>

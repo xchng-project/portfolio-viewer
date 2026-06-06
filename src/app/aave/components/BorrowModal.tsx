@@ -43,17 +43,19 @@ const BorrowModal = ({asset, isOpen, onClose}: Props) => {
 
     useEffect(() => {
         if (!isOpen) {
-            setAmount('')
-            setTokenBalance(null)
-            setTxHash(null)
-            setTxError(null)
-            setFutureHealthRate(null)
+            queueMicrotask(() => {
+                setAmount('')
+                setTokenBalance(null)
+                setTxHash(null)
+                setTxError(null)
+                setFutureHealthRate(null)
+            })
         }
     }, [isOpen])
 
     useEffect(() => {
         if (!isOpen || !asset || !asset.market || !asset.address || !walletAddress || !amount || parseFloat(amount) <= 0) {
-            setFutureHealthRate(null)
+            queueMicrotask(() => setFutureHealthRate(null))
             return
         }
 
@@ -87,16 +89,18 @@ const BorrowModal = ({asset, isOpen, onClose}: Props) => {
             return
         }
 
-        setIsLoadingBalance(true)
-        fetchBalance(walletAddress, asset.address)
-            .then(setTokenBalance)
-            .catch((e) => {
-                console.error('Error fetching balance:', e)
-                setTokenBalance(null)
-            })
-            .finally(() => {
-                setIsLoadingBalance(false)
-            })
+        queueMicrotask(() => {
+            setIsLoadingBalance(true)
+            fetchBalance(walletAddress, asset.address)
+                .then(setTokenBalance)
+                .catch((e) => {
+                    console.error('Error fetching balance:', e)
+                    setTokenBalance(null)
+                })
+                .finally(() => {
+                    setIsLoadingBalance(false)
+                })
+        })
     }, [asset, isOpen, wallet, walletAddress])
 
     if (!isOpen || !asset || !wallet || !signer) return null
@@ -144,15 +148,19 @@ const BorrowModal = ({asset, isOpen, onClose}: Props) => {
         }, 3000)
     }
 
-    return <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    return <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm">
         <div
-            className="w-full max-w-md bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl overflow-hidden"
+            className="w-full max-w-md overflow-hidden rounded-2xl border bg-surface"
         >
-            <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
-                <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">Borrow {asset.symbol}</h3>
+            <div className="flex items-center justify-between border-b px-6 py-4">
+                <div>
+                    <h3 className="text-lg font-semibold text-foreground">Borrow {asset.symbol}</h3>
+                    <p className="mt-1 text-xs text-muted">{asset.name}</p>
+                </div>
                 <button
                     onClick={onClose}
-                    className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors"
+                    aria-label="Close borrow dialog"
+                    className="rounded-lg p-1 text-muted hover:bg-surface-subtle hover:text-foreground"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
@@ -162,29 +170,29 @@ const BorrowModal = ({asset, isOpen, onClose}: Props) => {
             <div className="p-6 space-y-4">
                 <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800">
-                            <span className="block text-[10px] font-bold uppercase text-zinc-500 mb-1">Your Debt</span>
-                            <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                        <div className="rounded-xl bg-surface-subtle p-3">
+                            <span className="mb-1 block text-xs font-medium text-muted">Your debt</span>
+                            <span className="font-mono text-sm font-semibold text-foreground">
                                 {formatBalance(asset.balance)} {asset.symbol}
                             </span>
                         </div>
-                        <div className="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800">
-                            <span className="block text-[10px] font-bold uppercase text-zinc-500 mb-1">Wallet Balance</span>
-                            <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                        <div className="rounded-xl bg-surface-subtle p-3">
+                            <span className="mb-1 block text-xs font-medium text-muted">Wallet balance</span>
+                            <span className="font-mono text-sm font-semibold text-foreground">
                                 {isLoadingBalance ? '...' : (tokenBalance ? `${formatBalance(tokenBalance.formatted)} ${asset.symbol}` : '0')}
                             </span>
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800">
-                            <span className="block text-[10px] font-bold uppercase text-zinc-500 mb-1">Current Health Rate</span>
-                            <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                        <div className="rounded-xl bg-surface-subtle p-3">
+                            <span className="mb-1 block text-xs font-medium text-muted">Current health</span>
+                            <span className="font-mono text-sm font-semibold text-foreground">
                                 {marketState?.healthFactor ?? '-'}
                             </span>
                         </div>
-                        <div className="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800">
-                            <span className="block text-[10px] font-bold uppercase text-zinc-500 mb-1">Future Health Rate</span>
-                            <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                        <div className="rounded-xl bg-surface-subtle p-3">
+                            <span className="mb-1 block text-xs font-medium text-muted">Future health</span>
+                            <span className="font-mono text-sm font-semibold text-foreground">
                                 {previewingHealthFactor.loading ? '...' : (futureHealthRate ?? '-')}
                             </span>
                         </div>
@@ -195,17 +203,17 @@ const BorrowModal = ({asset, isOpen, onClose}: Props) => {
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
                             placeholder="0.00"
-                            className="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-zinc-900 placeholder:text-zinc-400 dark:text-zinc-100 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 transition-all"
+                            className="w-full rounded-xl border bg-surface-subtle px-4 py-3 font-mono text-foreground placeholder:text-muted focus:border-primary focus:outline-none"
                         />
                         <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                            <span className="text-sm font-semibold text-zinc-500">{asset.symbol}</span>
+                            <span className="text-sm font-semibold text-muted">{asset.symbol}</span>
                         </div>
                     </div>
                 </div>
                 <button
                     onClick={confirmHandler}
                     disabled={!amount || parseFloat(amount) <= 0 || borrowing.loading || sending.loading || !!txHash}
-                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/20 flex justify-center items-center gap-2"
+                    className="ui-button ui-button-primary ui-button-wide disabled:opacity-55"
                 >
                     {(borrowing.loading || sending.loading) && (
                         <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -216,12 +224,12 @@ const BorrowModal = ({asset, isOpen, onClose}: Props) => {
                     {txHash ? 'Borrow Successful' : (borrowing.loading || sending.loading ? 'Processing...' : 'Confirm Borrow')}
                 </button>
                 {txHash && (
-                    <p className="text-center text-xs text-green-500 font-medium">
+                    <p className="rounded-lg bg-success-soft px-3 py-2 text-center text-xs font-medium text-success">
                         Transaction sent: {txHash.slice(0, 10)}...{txHash.slice(-8)}
                     </p>
                 )}
                 {txError && (
-                    <p className="text-center text-xs text-red-500 font-medium">
+                    <p className="rounded-lg bg-danger-soft px-3 py-2 text-center text-xs font-medium text-danger">
                         Error: {txError}
                     </p>
                 )}

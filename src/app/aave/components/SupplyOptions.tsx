@@ -14,14 +14,13 @@ const SupplyOptions = ({chainId, walletAddress}: Props) => {
         suspense: true,
     })
 
-    return <div
-        className="w-full overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
-    >
-        <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800">
-            <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-50">Assets to Supply</h2>
+    return <div className="w-full overflow-hidden rounded-xl border bg-surface">
+        <div className="border-b px-4 py-3">
+            <h2 className="text-sm font-semibold text-foreground">Assets to supply</h2>
+            <p className="mt-1 text-xs text-muted">Markets sorted by wallet value.</p>
         </div>
         <div className="overflow-x-auto">
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<div className="px-4 py-8 text-sm text-muted">Loading markets...</div>}>
                 <SupplyOptionsTable markets={markets || []}/>
             </Suspense>
         </div>

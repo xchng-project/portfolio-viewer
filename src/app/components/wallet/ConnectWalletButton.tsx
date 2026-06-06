@@ -8,10 +8,10 @@ const ConnectWalletButton = () => {
     }
 
     return <button
-        className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-50 dark:text-black dark:hover:bg-zinc-200"
+        className="ui-button ui-button-primary ui-button-standard disabled:opacity-60"
         disabled={connecting}
         onClick={connectWallet}
-    >Connect Wallet</button>
+    >{connecting ? 'Connecting...' : 'Connect wallet'}</button>
 }
 
 export default ConnectWalletButton

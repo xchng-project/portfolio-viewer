@@ -16,39 +16,37 @@ interface Props {
 }
 
 const AssetTable = ({title, assets, columns}: Props) => {
-    return <div
-        className="w-full overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
-    >
-        <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800">
-            <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-50">{title}</h2>
+    return <div className="w-full overflow-hidden rounded-xl border bg-surface">
+        <div className="border-b px-4 py-3">
+            <h2 className="text-sm font-semibold text-foreground">{title}</h2>
         </div>
         <div className="overflow-x-auto">
             <table className="w-full text-left">
                 <thead>
-                <tr className="bg-zinc-50 dark:bg-zinc-900/50">
+                <tr className="bg-surface-subtle">
                     {columns.map((col) => (
                         <th key={col.key as string}
-                            className="px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                            className="px-4 py-2.5 text-xs font-semibold text-muted">
                             {col.label}
                         </th>
                     ))}
                 </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+                <tbody className="divide-y">
                 {assets.length > 0 ?
                     assets.map((asset, index) => (
-                        <tr key={index} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/30 transition-colors">
+                        <tr key={index} className="hover:bg-surface-subtle">
                             {columns.map((col) => (
-                                <td key={col.key as string} className="px-4 py-3 whitespace-nowrap">
+                                <td key={col.key as string} className="whitespace-nowrap px-4 py-3">
                                     {col.key === 'symbol' ? (
                                         <div className="flex items-center gap-2">
                                             <div>
                                                 <div
-                                                    className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">{asset.symbol}</div>
+                                                    className="text-sm font-semibold text-foreground">{asset.symbol}</div>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="text-xs text-zinc-900 dark:text-zinc-100">
+                                        <div className="font-mono text-xs text-muted-strong">
                                             {asset[col.key]}
                                         </div>
                                     )}
@@ -59,7 +57,7 @@ const AssetTable = ({title, assets, columns}: Props) => {
                     :
                     <tr>
                         <td colSpan={columns.length}
-                            className="px-4 py-6 text-center text-xs text-zinc-500 dark:text-zinc-400">
+                            className="px-4 py-8 text-center text-sm text-muted">
                             No assets found
                         </td>
                     </tr>

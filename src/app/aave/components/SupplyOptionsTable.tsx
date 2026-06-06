@@ -97,32 +97,32 @@ const SupplyOptionsTable = ({markets}: Props) => {
     return <>
         <table className="w-full text-left">
         <thead>
-        <tr className="bg-zinc-50 dark:bg-zinc-900/50">
+        <tr className="bg-surface-subtle">
             {columns.map((col) => (
                 <th
                     key={col.key}
-                    className="px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400"
+                    className="px-4 py-2.5 text-xs font-semibold text-muted"
                 >{col.label}</th>
             ))}
             <th
                 key={'action'}
-                className="px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400"
+                className="px-4 py-2.5 text-xs font-semibold text-muted"
             >Action</th>
         </tr>
         </thead>
-        <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+        <tbody className="divide-y">
         {assets.length > 0 ?
             assets.map((asset, index) => (
-                <tr key={`${asset.market.address}:${asset.address}`} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/30 transition-colors">
+                <tr key={`${asset.market.address}:${asset.address}`} className="hover:bg-surface-subtle">
                     {columns.map((col) => (
-                        <td key={col.key} className="px-4 py-3 whitespace-nowrap">
+                        <td key={col.key} className="whitespace-nowrap px-4 py-3">
                             {col.key === 'name' ?
                                 <div className="flex flex-col">
-                                    <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">{asset.symbol}</span>
-                                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400">{asset.name}</span>
+                                    <span className="text-sm font-semibold text-foreground">{asset.symbol}</span>
+                                    <span className="text-xs text-muted">{asset.name}</span>
                                 </div>
                                 :
-                                <div className="text-xs text-zinc-900 dark:text-zinc-100">
+                                <div className="font-mono text-xs text-muted-strong">
                                     {col.key === 'balance' || col.key === 'valueInUsd' || col.key === 'totalSupplied' || col.key === 'supplyCap' ?
                                         formatBalance(asset[col.key])
                                         :
@@ -132,16 +132,16 @@ const SupplyOptionsTable = ({markets}: Props) => {
                             }
                         </td>
                     ))}
-                    <td key={'action'} className="px-4 py-3 whitespace-nowrap">
-                        <div className="text-xs text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                    <td key={'action'} className="whitespace-nowrap px-4 py-3">
+                        <div className="flex items-center gap-2 text-xs text-muted-strong">
                             <button
                                 onClick={() => supply(index)}
-                                className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg font-medium transition-colors"
+                                className="ui-button ui-button-primary ui-button-compact"
                             >Supply</button>
                             <button
                                 onClick={() => borrow(index)}
                                 disabled={!asset.borrowable}
-                                className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
+                                className="ui-button ui-button-compact"
                             >Borrow</button>
                         </div>
                     </td>
@@ -151,8 +151,8 @@ const SupplyOptionsTable = ({markets}: Props) => {
             <tr>
                 <td
                     colSpan={columns.length + 1}
-                    className="px-4 py-6 text-center text-xs text-zinc-500 dark:text-zinc-400"
-                >No assets found</td>
+                    className="px-4 py-8 text-center text-sm text-muted"
+                >No supply-ready assets found for this wallet.</td>
             </tr>
         }
         </tbody>
