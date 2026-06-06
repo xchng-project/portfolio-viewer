@@ -3,6 +3,7 @@
 import {useWeb3Auth} from '@xchng/web3-auth'
 import {Suspense} from 'react'
 import Borrows from './Borrows'
+import SupplyOptions from './SupplyOptions'
 import Supplies from './Supplies'
 
 export interface Asset {
@@ -32,6 +33,9 @@ const Assets = () => {
                         <Borrows chainId={chainId} walletAddress={walletAddress}/>
                     </Suspense>
                 </div>
+                <Suspense fallback={<div>Loading...</div>}>
+                    <SupplyOptions chainId={chainId} walletAddress={walletAddress}/>
+                </Suspense>
                 {/*
                 <AssetTable
                     title="Assets in Wallet"

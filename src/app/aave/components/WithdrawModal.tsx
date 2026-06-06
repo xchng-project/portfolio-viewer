@@ -109,7 +109,7 @@ const WithdrawModal = ({asset, isOpen, onClose}: Props) => {
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
                             placeholder="0.00"
-                            className={`w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-900 border ${isExceedingSupply ? 'border-red-500' : 'border-zinc-200 dark:border-zinc-800'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 transition-all`}
+                            className={`w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-900 border ${isExceedingSupply ? 'border-red-500' : 'border-zinc-200 dark:border-zinc-800'} rounded-xl text-zinc-900 placeholder:text-zinc-400 dark:text-zinc-100 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 transition-all`}
                         />
                         <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
                             <button

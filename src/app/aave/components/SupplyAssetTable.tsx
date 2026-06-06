@@ -21,7 +21,6 @@ const columns: {
     {key: 'balance', label: 'Balance'},
     {key: 'valueInUsd', label: 'Value'},
     {key: 'apy', label: 'APY'},
-    {key: 'collateral', label: 'Collateral'},
 ]
 
 const SupplyAssetTable = ({markets, walletAddress}: Props) => {
