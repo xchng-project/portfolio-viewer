@@ -1,6 +1,6 @@
 {
   "name": "portfolio-viewer",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,7 +12,7 @@
     "@aave/react": "^0.8.2",
     "@xchng/web3-auth": "https://github.com/xchng-project/web3-auth/releases/download/v0.1.1/xchng-web3-auth-0.1.0.tgz",
     "ethers": "^6.16.0",
-    "next": "16.1.6",
+    "next": "16.2.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },

@@ -69,6 +69,17 @@ export const CHAINS = {
         blockExplorerNftLink: (contract, tokenId) => (`https://arbiscan.io/token/${contract}?a=${tokenId}`),
         blockExplorerTxHash: (hash) => (`https://arbiscan.io/tx/${hash}`),
     },
+    534352: {
+        eipPrefix: 'ERC',
+        token: 'ETH',
+        tokenPrecision: 18,
+        label: 'Scroll',
+        name: 'scroll',
+        testnet: false,
+        blockExplorer: 'https://scrollscan.com',
+        blockExplorerNftLink: (contract, tokenId) => (`https://scrollscan.com/token/${contract}?a=${tokenId}`),
+        blockExplorerTxHash: (hash) => (`https://scrollscan.com/tx/${hash}`),
+    },
     81457: {
         eipPrefix: 'ERC',
         token: 'ETH',
