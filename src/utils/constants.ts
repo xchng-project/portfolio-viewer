@@ -8,6 +8,7 @@ export interface ChainType {
     eipPrefix: string
     label: string
     name: string
+    rpcUrl: string
     testnet: boolean
     token: string
     tokenPrecision: number
@@ -20,6 +21,7 @@ export const CHAINS = {
         tokenPrecision: 18,
         label: 'Ethereum',
         name: 'ethereum',
+        rpcUrl: 'https://ethereum-rpc.publicnode.com',
         testnet: false,
         blockExplorer: 'https://etherscan.io',
         blockExplorerNftLink: (contract, tokenId) => (`https://etherscan.io/nft/${contract}/${tokenId}`),
@@ -31,6 +33,7 @@ export const CHAINS = {
         tokenPrecision: 18,
         label: 'BNB chain',
         name: 'bnb',
+        rpcUrl: 'https://bsc-dataseed.binance.org',
         testnet: false,
         blockExplorer: 'https://bscscan.com',
         blockExplorerNftLink: (contract, tokenId) => (`https://bscscan.com/nft/${contract}/${tokenId}`),
@@ -42,6 +45,7 @@ export const CHAINS = {
         tokenPrecision: 18,
         label: 'Polygon',
         name: 'polygon',
+        rpcUrl: 'https://polygon-rpc.com',
         testnet: false,
         blockExplorer: 'https://polygonscan.com',
         blockExplorerNftLink: (contract, tokenId) => (`https://polygonscan.com/nft/${contract}/${tokenId}`),
@@ -53,6 +57,7 @@ export const CHAINS = {
         tokenPrecision: 18,
         label: 'Base',
         name: 'base',
+        rpcUrl: 'https://mainnet.base.org',
         testnet: false,
         blockExplorer: 'https://basescan.org',
         blockExplorerNftLink: (contract, tokenId) => (`https://basescan.org/token/${contract}?a=${tokenId}`),
@@ -64,6 +69,7 @@ export const CHAINS = {
         tokenPrecision: 18,
         label: 'Arbitrum',
         name: 'arbitrum-one',
+        rpcUrl: 'https://arb1.arbitrum.io/rpc',
         testnet: false,
         blockExplorer: 'https://arbiscan.io',
         blockExplorerNftLink: (contract, tokenId) => (`https://arbiscan.io/token/${contract}?a=${tokenId}`),
@@ -75,6 +81,7 @@ export const CHAINS = {
         tokenPrecision: 18,
         label: 'Scroll',
         name: 'scroll',
+        rpcUrl: 'https://rpc.scroll.io',
         testnet: false,
         blockExplorer: 'https://scrollscan.com',
         blockExplorerNftLink: (contract, tokenId) => (`https://scrollscan.com/token/${contract}?a=${tokenId}`),
@@ -86,6 +93,7 @@ export const CHAINS = {
         tokenPrecision: 18,
         label: 'Blast',
         name: 'blast',
+        rpcUrl: 'https://rpc.blast.io',
         testnet: false,
         blockExplorer: 'https://blastscan.io',
         blockExplorerNftLink: (contract, tokenId) => (`https://blastscan.io/token/${contract}?a=${tokenId}`),
@@ -97,6 +105,7 @@ export const CHAINS = {
         tokenPrecision: 18,
         label: 'Sepolia',
         name: 'sepolia',
+        rpcUrl: 'https://ethereum-sepolia-rpc.publicnode.com',
         testnet: true,
         blockExplorer: 'https://sepolia.etherscan.io',
         blockExplorerNftLink: (contract, tokenId) => (`https://sepolia.etherscan.io/token/${contract}?a=${tokenId}`),

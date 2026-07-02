@@ -23,7 +23,7 @@ const RepayModal = ({asset, isOpen, onClose}: Props) => {
     const [tokenBalance, setTokenBalance] = useState<TokenBalance | null>(null)
     const [txHash, setTxHash] = useState<string | null>(null)
     const [txError, setTxError] = useState<string | null>(null)
-    const {chainId, wallet, walletAddress} = useWeb3Auth()
+    const {wallet, walletAddress} = useWeb3Auth()
 
     useEffect(() => {
         if (!isOpen) {
@@ -59,7 +59,7 @@ const RepayModal = ({asset, isOpen, onClose}: Props) => {
     const isExceedingBalance = tokenBalance && amount !== '' ? parseFloat(amount) > parseFloat(tokenBalance.formatted) : false
 
     const confirmHandler = async () => {
-        if (!asset || !asset.address || !asset.market || !chainId || !walletAddress) {
+        if (!asset || !asset.address || !asset.market || !walletAddress) {
             return
         }
 
@@ -67,7 +67,7 @@ const RepayModal = ({asset, isOpen, onClose}: Props) => {
         setTxHash(null)
         const result = await repay({
             market: evmAddress(asset.market.address),
-            chainId: aaveChainId(chainId),
+            chainId: aaveChainId(asset.market.chainId),
             amount: {
                 erc20: {
                     value: {exact: bigDecimal(amount)},
